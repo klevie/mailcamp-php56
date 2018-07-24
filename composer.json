@@ -6,7 +6,7 @@
     "seacommerce"
   ],
   "homepage": "https://seacommerce.nl",
-  "license": "Seacommerce",
+  "license": "MIT",
   "authors": [
     {
       "name": "Niels Steenbakker",
