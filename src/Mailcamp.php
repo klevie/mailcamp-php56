@@ -128,8 +128,7 @@ class Mailcamp
             "replytoemail" => $this->settings->getReplytoemail(),
             "format" => $this->settings->getFormat(),
             "createdate" => strtotime('now'),
-            //always notify owner
-            "notifyowner" => 1,
+            "notifyowner" => $this->settings->getNotifyowner(),
             "bounceserver" => $this->settings->getBounceserver(),
             "bounceusername" => $this->settings->getBounceusername(),
             "bouncepassword" => $this->settings->getBouncepassword(),
@@ -162,7 +161,7 @@ class Mailcamp
         $details = array(
             "emailaddress" => $subscriber->getEmailaddress(),
             "mailinglist" => $listid,
-            "format" => "html",
+            "format" => $this->settings->getFormat(),
             "confirmed" => true,
             "ipaddress" => $_SERVER['REMOTE_ADDR'] ?? null,
             "subscribedate" => strtotime('now'),
