@@ -1,21 +1,22 @@
 {
-  "name": "seacommerce/mailcamp",
+  "name": "seacommerce/mailcamp-php",
   "type": "library",
-  "description": "Mailcamp newsletter library",
+  "description": "Mailcamp php library",
   "keywords": [
-    "seacommerce"
+    "seacommerce","Mailcamp"
   ],
   "homepage": "https://seacommerce.nl",
-  "license": "Seacommerce",
+  "license": "MIT",
   "authors": [
     {
       "name": "Niels Steenbakker",
+      "homepage": "https://seacommerce.nl",
       "email": "niels@seacommerce.nl"
     },
     {
-      "name": "Seacommerce",
+      "name": "Sil Moelker",
       "homepage": "https://seacommerce.nl",
-      "email": "info@seacommerce.nl"
+      "email": "sil@seacommerce.nl"
     }
   ],
   "require": {

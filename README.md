@@ -1,2 +1,2 @@
-# Mailcamp-php-client
-Mailcamp php client
+# Mailcamp PHP client
+Minimalist PHP client for Mailcamp API.
