@@ -3,7 +3,7 @@
   "type": "library",
   "description": "Mailcamp php library",
   "keywords": [
-    "seacommerce"
+    "seacommerce","Mailcamp"
   ],
   "homepage": "https://seacommerce.nl",
   "license": "MIT",
