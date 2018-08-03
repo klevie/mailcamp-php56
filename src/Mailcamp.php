@@ -353,6 +353,9 @@ class Mailcamp
     function findListById($listid)
     {
         $lists = $this->getLists();
+        if(!is_array($lists)) {
+            $lists = [$lists];
+        }
         $list = array_values(array_filter($lists, function ($list) use (&$listid) {
             return $list->listid === $listid;
         }));
@@ -367,6 +370,9 @@ class Mailcamp
     function findListByListNamePrefix($listNamePrefix)
     {
         $lists = $this->getLists();
+        if(!is_array($lists)) {
+            $lists = [$lists];
+        }
         $list = array_values(array_filter($lists, function ($list) use (&$listNamePrefix) {
             return strpos($list->name, $listNamePrefix) === 0;
         }));
