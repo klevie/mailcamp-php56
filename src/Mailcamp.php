@@ -143,6 +143,29 @@ class Mailcamp
         );
         $request->details = $details;
         $response = $this->send($request);
+        // if success, returns listId
+        return $response;
+    }
+
+
+    /**
+     * @param Subscriber $subscriber
+     * @param $listId
+     * @return mixed
+     * @throws Exception
+     */
+    public
+    function IsSubscriberOnList(Subscriber $subscriber, $listId)
+    {
+
+        $request = $this->createRequest("subscribers", "IsSubscriberOnList");
+        $details = array(
+            "emailaddress" => $subscriber->getEmailaddress(),
+            "listid" => $listId,
+        );
+        $request->details = $details;
+        $response = $this->send($request);
+        // if success, returns listId
         return $response;
     }
 
