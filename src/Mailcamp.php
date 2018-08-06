@@ -161,7 +161,7 @@ class Mailcamp
         $request = $this->createRequest("subscribers", "IsSubscriberOnList");
         $details = array(
             "emailaddress" => $subscriber->getEmailaddress(),
-            "listid" => $listId,
+            "listids" => $listId,
         );
         $request->details = $details;
         $response = $this->send($request);
