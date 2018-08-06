@@ -428,7 +428,9 @@ class Mailcamp
             if ($arrayData->status == 'SUCCESS') {
                 return $arrayData->data;
             } else {
-                throw new Exception($arrayData->errormessage);
+                if( is_string($arrayData->errormessage)) {
+                    throw new Exception($arrayData->errormessage);
+                }
             }
         }
     }
