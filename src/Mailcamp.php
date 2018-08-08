@@ -95,19 +95,19 @@ class Mailcamp
     public
     function getLists()
     {
-            $request = $this->createRequest("user", "GetLists");
+        $request = $this->createRequest("user", "GetLists");
 
-            $details = array(
-                "lists" => null,
-                "sortinfo" => null,
-                "countonly" => null,
-                "start" => null,
-                "perpage" => null
-            );
-            $request->details = $details;
-            $response = $this->send($request);
-            $this->mailinglists = $response->item;
-           return $response->item;
+        $details = array(
+            "lists" => null,
+            "sortinfo" => null,
+            "countonly" => null,
+            "start" => null,
+            "perpage" => null
+        );
+        $request->details = $details;
+        $response = $this->send($request);
+        $this->mailinglists = $response->item;
+        return $response->item;
     }
 
     /**
@@ -205,6 +205,46 @@ class Mailcamp
         $request->details = $details;
         $response = $this->send($request);
         return $response;
+    }
+
+    /**
+     * @param int $listId
+     * @param int $numToRetrieve
+     * @return mixed
+     * @throws Exception
+     */
+    public
+    function GetArchiveMailings(int $listId, int $numToRetrieve = 99)
+    {
+
+        $request = $this->createRequest("lists", "GetArchives");
+        $details = array(
+            "listid" => $listId,
+            "num_to_retrieve" => $numToRetrieve ?? 99,
+        );
+        $request->details = $details;
+        $response = $this->send($request);
+        return $response;
+    }
+
+
+    public
+    function GetNewsletters(int $ownerId = null)
+    {
+        $request = $this->createRequest("newsletters", "GetNewsletters");
+        $details = array(
+            "ownerid" => $this->getOwnerId(),
+            "sortinfo" => array(
+                "SortBy" => "Date",
+                "direction" => "down"
+            ),
+            "start" => 0,
+            "perpage" => 99,
+            "getLastSentDetails" => false,
+        );
+        $request->details = $details;
+        $response = $this->send($request);
+        return $response->item;
     }
 
     /**
