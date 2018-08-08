@@ -431,6 +431,7 @@ class Mailcamp
         return $list[0];
     }
 
+    
     /**
      * @param $listNamePrefix
      * @return array
