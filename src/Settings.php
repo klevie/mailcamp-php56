@@ -11,10 +11,10 @@ use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 /**
- * Class Mailcamp
+ * Class Settings
  * @package Seacommerce\Mailcamp
  */
-class Mailcamp
+class Settings
 {
 
     const CUSTOMFIELD_FIRSTNAME = 2;
@@ -431,7 +431,7 @@ class Mailcamp
         return $list[0];
     }
 
-    
+
     /**
      * @param $listNamePrefix
      * @return array
