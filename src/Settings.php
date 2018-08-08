@@ -1,485 +1,380 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: niels
+ * Date: 20-7-2018
+ * Time: 16:29
+ */
 
 namespace Seacommerce\Mailcamp;
 
-use Exception;
-use Seacommerce\Mailcamp\Dto\Request;
-use Seacommerce\Mailcamp\Dto\Subscriber;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
-/**
- * Class Settings
- * @package Seacommerce\Mailcamp
- */
 class Settings
 {
+    private $endpoint;
+    private $username;
+    private $usertoken;
 
-    const CUSTOMFIELD_FIRSTNAME = 2;
-    const CUSTOMFIELD_LASTNAME = 4;
-    /**
-     * @var integer
-     */
-    private $ownerid;
-    /**
-     * @var Serializer
-     */
-    private $serializer;
-    /**
-     * @var array
-     */
-    private $mailinglists;
+    private $owneremail;
+    private $ownername;
+    private $bounceemail;
+    private $replytoemail;
+    private $format;
+    private $notifyowner = 1;
+    private $imapaccount;
+    private $bounceserver;
+    private $bounceusername;
+    private $bouncepassword;
+    private $extramailsettings;
+    private $companyname;
+    private $companyaddress;
+    private $companyphone;
+    private $processbounce = 1;
+    private $visiblefields = "emailaddress,subscribedate,updated,status,confirmed";
 
     /**
-     * Mailcamp constructor.
-     * @param Settings $settings
+     * @return mixed
      */
-    public function __construct(Settings $settings)
+    public function getEndpoint()
     {
-        $this->settings = $settings;
+        return $this->endpoint;
+    }
 
-        $encoders = array(new XmlEncoder(), new JsonEncoder());
-        $normalizers = array(new ObjectNormalizer());
-
-        $this->serializer = new Serializer($normalizers, $encoders);
+    /**
+     * @param mixed $endpoint
+     * @return Settings
+     */
+    public function setEndpoint($endpoint)
+    {
+        $this->endpoint = $endpoint;
+        return $this;
     }
 
     /**
      * @return mixed
-     * @throws Exception
      */
-    public
-    function getOwnerId()
+    public function getUsername()
     {
-
-        if (!$this->ownerid) {
-            $request = $this->createRequest("authentication", "xmlapitest");
-
-            $details = array(
-                "" => ""
-            );
-            $request->details = $details;
-
-            $response = $this->send($request);
-            $this->ownerid = $response->userid;
-
-        }
-        return $this->ownerid;
-
-
+        return $this->username;
     }
 
     /**
-     * @param $requestType
-     * @param $requestMethod
-     * @return Request
+     * @param mixed $username
+     * @return Settings
      */
-    public
-    function createRequest($requestType, $requestMethod)
+    public function setUsername($username)
     {
-        $request = new Request();
-        $request->username = $this->settings->getUsername();
-        $request->usertoken = $this->settings->getUsertoken();
-        $request->requesttype = $requestType;
-        $request->requestmethod = $requestMethod;
-        $request->details = "";
-        return $request;
+        $this->username = $username;
+        return $this;
     }
 
     /**
-     * @return array
-     * @throws Exception
-     */
-    public
-    function getLists()
-    {
-        $request = $this->createRequest("user", "GetLists");
-
-        $details = array(
-            "lists" => null,
-            "sortinfo" => null,
-            "countonly" => null,
-            "start" => null,
-            "perpage" => null
-        );
-        $request->details = $details;
-        $response = $this->send($request);
-        $this->mailinglists = $response->item;
-        return $response->item;
-    }
-
-    /**
-     * @param $name
-     * @return mixed
-     * @throws Exception
-     */
-    public
-    function createMailingList($name)
-    {
-
-        $request = $this->createRequest("lists", "Create");
-        $details = array(
-            "name" => $name,
-            "owneremail" => $this->settings->getOwneremail(),
-            "ownername" => $this->settings->getOwnername(),
-            "bounceemail" => $this->settings->getBounceemail(),
-            "replytoemail" => $this->settings->getReplytoemail(),
-            "format" => $this->settings->getFormat(),
-            "createdate" => strtotime('now'),
-            "notifyowner" => $this->settings->getNotifyowner(),
-            "bounceserver" => $this->settings->getBounceserver(),
-            "bounceusername" => $this->settings->getBounceusername(),
-            "bouncepassword" => $this->settings->getBouncepassword(),
-            "extramailsettings" => $this->settings->getExtramailsettings(),
-            "companyname" => $this->settings->getCompanyname(),
-            "companyaddress" => $this->settings->getCompanyaddress(),
-            "companyphone" => $this->settings->getCompanyphone(),
-            "ownerid" => $this->getOwnerId(),
-            "processbounce" => $this->settings->getProcessbounce(),
-            "visiblefields" => $this->settings->getVisiblefields(),
-            "customfields" => array(self::CUSTOMFIELD_FIRSTNAME, self::CUSTOMFIELD_LASTNAME),
-        );
-        $request->details = $details;
-        $response = $this->send($request);
-        // if success, returns listId
-        return $response;
-    }
-
-
-    /**
-     * @param Subscriber $subscriber
-     * @param $listId
-     * @return mixed
-     * @throws Exception
-     */
-    public
-    function IsSubscriberOnList(Subscriber $subscriber, $listId)
-    {
-
-        $request = $this->createRequest("subscribers", "IsSubscriberOnList");
-        $details = array(
-            "emailaddress" => $subscriber->getEmailaddress(),
-            "listids" => $listId,
-        );
-        $request->details = $details;
-        $response = $this->send($request);
-        // if success, returns listId
-        return $response;
-    }
-
-
-    /**
-     * @param Subscriber $subscriber
-     * @param $listid
-     * @return mixed
-     * @throws Exception
-     */
-    public
-    function AddSubscriberToList(Subscriber $subscriber, $listid)
-    {
-        $request = $this->createRequest("subscribers", "AddSubscriberToList");
-
-        $details = array(
-            "emailaddress" => $subscriber->getEmailaddress(),
-            "mailinglist" => $listid,
-            "format" => $this->settings->getFormat(),
-            "confirmed" => true,
-            "ipaddress" => $_SERVER['REMOTE_ADDR'] ?? null,
-            "subscribedate" => strtotime('now'),
-            "autoresponder" => true,
-            "customfields" => array(
-                "item" => array(
-                    array(
-                        "fieldid" => self::CUSTOMFIELD_LASTNAME,
-                        "value" => $subscriber->getLastname(),
-                    ),
-                    array(
-                        "fieldid" => self::CUSTOMFIELD_FIRSTNAME,
-                        "value" => $subscriber->getFirstname(),
-                    )
-                )
-            ),
-        );
-        $request->details = $details;
-        $response = $this->send($request);
-        return $response;
-    }
-
-    /**
-     * @param int $listId
-     * @param int $numToRetrieve
-     * @return mixed
-     * @throws Exception
-     */
-    public
-    function GetArchiveMailings(int $listId, int $numToRetrieve = 99)
-    {
-
-        $request = $this->createRequest("lists", "GetArchives");
-        $details = array(
-            "listid" => $listId,
-            "num_to_retrieve" => $numToRetrieve ?? 99,
-        );
-        $request->details = $details;
-        $response = $this->send($request);
-        return $response;
-    }
-
-
-    public
-    function GetNewsletters(int $ownerId = null)
-    {
-        $request = $this->createRequest("newsletters", "GetNewsletters");
-        $details = array(
-            "ownerid" => $this->getOwnerId(),
-            "sortinfo" => array(
-                "SortBy" => "Date",
-                "direction" => "down"
-            ),
-            "start" => 0,
-            "perpage" => 99,
-            "getLastSentDetails" => true,
-        );
-        $request->details = $details;
-        $response = $this->send($request);
-        if(is_array($response->item)) {
-            return $response->item;
-
-        } else {
-            return [$response->item];
-
-        }
-    }
-
-    /**
-     * @param Subscriber $subscriber
-     * @param $listid
-     * @return mixed
-     * @throws Exception
-     */
-    public
-    function EditSubscriber(Subscriber $subscriber, $listid)
-    {
-        $request = $this->createRequest("subscribers", "EditSubscriberCustomFields");
-
-        $details = array(
-            "emailaddress" => $subscriber->getEmailaddress(),
-            "mailinglist" => $listid,
-            "customfields" => array(
-                "item" => array(
-                    array(
-                        "fieldid" => self::CUSTOMFIELD_LASTNAME,
-                        "value" => $subscriber->getLastname(),
-                    ),
-                    array(
-                        "fieldid" => self::CUSTOMFIELD_FIRSTNAME,
-                        "value" => $subscriber->getFirstname(),
-                    )
-                )
-            ),
-        );
-        $request->details = $details;
-        $response = $this->send($request);
-        return $response;
-    }
-
-    /**
-     * @param $listid
-     * @return mixed
-     * @throws Exception
-     */
-    public
-    function createMailing($name, $subject, $textBody, $htmlbody)
-    {
-        $request = $this->createRequest("newsletters", "Create");
-        $details = array(
-            "name" => $name,
-            //format BOTH (HTML and TEXT)
-            "format" => "b",
-            "subject" => $subject,
-            "textbody" => $textBody,
-            "htmlbody" => $htmlbody,
-            "createdate" => strtotime('now'),
-            "active" => 1,
-            "archive" => 1,
-            "ownerid" => $this->getOwnerId(),
-        );
-        $request->details = $details;
-
-        $response = $this->send($request);
-        return $response;
-    }
-
-
-    /**
-     * @param $listid
-     * @param $newsletterid
-     * @return mixed
-     * @throws Exception
-     */
-    public
-    function sendMailing($listid, $newsletterid, $googleCampaignName = null)
-    {
-        $request = $this->createRequest("jobs", "Create");
-
-        $list = $this->findListById($listid);
-
-        $details = array(
-            "jobtype" => "send",
-            "jobstatus" => "w",
-            "when" => strtotime('now'),
-            "lists" => $listid,
-            "fkid" => $listid,
-            "fktype" => $listid,
-            "ownerid" => $this->getOwnerId(),
-            "approved" => 1,
-            "details" => array(
-                "NewsletterChosen" => $newsletterid,
-                "Lists" => $listid,
-                "SendCriteria" => array(
-                    "Confirmed" => 1,
-                    "Status" => "a",
-                    "List" => $listid,
-                ),
-                "SendSize" => $list->subscribecount,
-                "BackStep" => 1,
-                "Multipart" => 1,
-                "TrackOpens" => 1,
-                "TrackLinks" => 1,
-                "EmbedImages" => 0,
-                "Newsletter" => $newsletterid,
-                "SendFromName" => $this->settings->getOwnername(),
-                "SentFromEmail" => $this->settings->getOwneremail(),
-                "ReplyToEmail" => $this->settings->getReplytoemail(),
-                "BounceEmail" => $this->settings->getBounceemail(),
-                "To_FirstName" => self::CUSTOMFIELD_FIRSTNAME,
-                "To_LastName" => self::CUSTOMFIELD_LASTNAME,
-                "Charset" => "UTF-8",
-                "NotifyOwner" => 1,
-                "SendStartTime" => strtotime('now'),
-                "module_tracker_google_options_name" => $googleCampaignName ?? $list->name ."-". $newsletterid . "-".date("d-m-Y"),
-                "module_tracker_google_options_source" => "email",
-                "EmailResults" => array(
-                    "success" => 0,
-                    "total" => 0,
-                    "failure" => 0,
-                ),
-            ),
-        );
-        $request->details = $details;
-
-        $response = $this->send($request);
-        return $response;
-    }
-
-    /**
-     * @param $emailadress
-     * @param $listid
-     * @return mixed
-     * @throws Exception
-     */
-    public
-    function DeleteSubscriberFromList($emailadress, $listid)
-    {
-        $request = $this->createRequest("subscribers", "DeleteSubscriber");
-
-        $details = array(
-            "emailaddress" => $emailadress,
-            "listid" => $listid
-        );
-        $request->details = $details;
-        $response = $this->send($request);
-        return $response;
-    }
-
-
-    /**
-     * @param $listid
-     * @return mixed
-     * @throws Exception
-     */
-    public
-    function deleteMailingList($listid)
-    {
-        $request = $this->createRequest("lists", "Delete");
-        $details = array(
-            "listid" => $listid,
-        );
-        $request->details = $details;
-
-        $response = $this->send($request);
-        return $response;
-    }
-
-
-    /**
-     * @param $listid
      * @return mixed
      */
-    public
-    function findListById($listid)
+    public function getUsertoken()
     {
-        $lists = $this->getLists();
-        if(!is_array($lists)) {
-            $lists = [$lists];
-        }
-        $list = array_values(array_filter($lists, function ($list) use (&$listid) {
-            return $list->listid === $listid;
-        }));
-        return $list[0];
+        return $this->usertoken;
     }
 
-
     /**
-     * @param $listNamePrefix
-     * @return array
+     * @param mixed $usertoken
+     * @return Settings
      */
-    public
-    function findListByListNamePrefix($listNamePrefix)
+    public function setUsertoken($usertoken)
     {
-        $lists = $this->getLists();
-        if(!is_array($lists)) {
-            $lists = [$lists];
-        }
-        $list = array_values(array_filter($lists, function ($list) use (&$listNamePrefix) {
-            return strpos($list->name, $listNamePrefix) === 0;
-        }));
-
-        return $list;
+        $this->usertoken = $usertoken;
+        return $this;
     }
 
-
     /**
-     * @param Request $request
      * @return mixed
-     * @throws Exception
      */
-    public
-    function send(Request $request)
+    public function getOwneremail()
     {
+        return $this->owneremail;
+    }
 
-        $xml = $this->serializer->serialize($request, 'xml');
-        $ch = curl_init($this->settings->getEndpoint());
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+    /**
+     * @param mixed $owneremail
+     * @return Settings
+     */
+    public function setOwneremail($owneremail)
+    {
+        $this->owneremail = $owneremail;
+        return $this;
+    }
 
-        $result = @curl_exec($ch);
-        if ($result === false) {
-            throw new Exception('Error performing request');
+    /**
+     * @return mixed
+     */
+    public function getOwnername()
+    {
+        return $this->ownername;
+    }
 
-        } else {
-            $arrayData = json_decode(json_encode((array)simplexml_load_string($result)));
-            if ($arrayData->status == 'SUCCESS') {
-                return $arrayData->data;
-            } else {
-                if( is_string($arrayData->errormessage)) {
-                    throw new Exception($arrayData->errormessage);
-                }
-            }
-        }
+    /**
+     * @param mixed $ownername
+     * @return Settings
+     */
+    public function setOwnername($ownername)
+    {
+        $this->ownername = $ownername;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBounceemail()
+    {
+        return $this->bounceemail;
+    }
+
+    /**
+     * @param mixed $bounceemail
+     * @return Settings
+     */
+    public function setBounceemail($bounceemail)
+    {
+        $this->bounceemail = $bounceemail;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getReplytoemail()
+    {
+        return $this->replytoemail;
+    }
+
+    /**
+     * @param mixed $replytoemail
+     * @return Settings
+     */
+    public function setReplytoemail($replytoemail)
+    {
+        $this->replytoemail = $replytoemail;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFormat()
+    {
+        return $this->format;
+    }
+
+    /**
+     * @param mixed $format
+     * @return Settings
+     */
+    public function setFormat($format)
+    {
+        $this->format = $format;
+        return $this;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getNotifyowner()
+    {
+        return $this->notifyowner;
+    }
+
+    /**
+     * @param mixed $notifyowner
+     * @return Settings
+     */
+    public function setNotifyowner($notifyowner)
+    {
+        $this->notifyowner = $notifyowner;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getImapaccount()
+    {
+        return $this->imapaccount;
+    }
+
+    /**
+     * @param mixed $imapaccount
+     * @return Settings
+     */
+    public function setImapaccount($imapaccount)
+    {
+        $this->imapaccount = $imapaccount;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBounceserver()
+    {
+        return $this->bounceserver;
+    }
+
+    /**
+     * @param mixed $bounceserver
+     * @return Settings
+     */
+    public function setBounceserver($bounceserver)
+    {
+        $this->bounceserver = $bounceserver;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBounceusername()
+    {
+        return $this->bounceusername;
+    }
+
+    /**
+     * @param mixed $bounceusername
+     * @return Settings
+     */
+    public function setBounceusername($bounceusername)
+    {
+        $this->bounceusername = $bounceusername;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBouncepassword()
+    {
+        return $this->bouncepassword;
+    }
+
+    /**
+     * @param mixed $bouncepassword
+     * @return Settings
+     */
+    public function setBouncepassword($bouncepassword)
+    {
+        $this->bouncepassword = $bouncepassword;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExtramailsettings()
+    {
+        return $this->extramailsettings;
+    }
+
+    /**
+     * @param mixed $extramailsettings
+     * @return Settings
+     */
+    public function setExtramailsettings($extramailsettings)
+    {
+        $this->extramailsettings = $extramailsettings;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompanyname()
+    {
+        return $this->companyname;
+    }
+
+    /**
+     * @param mixed $companyname
+     * @return Settings
+     */
+    public function setCompanyname($companyname)
+    {
+        $this->companyname = $companyname;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompanyaddress()
+    {
+        return $this->companyaddress;
+    }
+
+    /**
+     * @param mixed $companyaddress
+     * @return Settings
+     */
+    public function setCompanyaddress($companyaddress)
+    {
+        $this->companyaddress = $companyaddress;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompanyphone()
+    {
+        return $this->companyphone;
+    }
+
+    /**
+     * @param mixed $companyphone
+     * @return Settings
+     */
+    public function setCompanyphone($companyphone)
+    {
+        $this->companyphone = $companyphone;
+        return $this;
+    }
+
+
+
+    /**
+     * @return mixed
+     */
+    public function getProcessbounce()
+    {
+        return $this->processbounce;
+    }
+
+    /**
+     * @param mixed $processbounce
+     * @return Settings
+     */
+    public function setProcessbounce($processbounce)
+    {
+        $this->processbounce = $processbounce;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVisiblefields()
+    {
+        return $this->visiblefields;
+    }
+
+    /**
+     * @param mixed $visiblefields
+     * @return Settings
+     */
+    public function setVisiblefields($visiblefields)
+    {
+        $this->visiblefields = $visiblefields;
+        return $this;
     }
 
 }
