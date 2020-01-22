@@ -1,32 +1,22 @@
 {
-  "name": "seacommerce/mailcamp-php",
+  "name": "klevie/mailcamp-php56",
   "type": "library",
-  "description": "Mailcamp php library",
-  "keywords": [
-    "seacommerce","Mailcamp"
-  ],
-  "homepage": "https://seacommerce.nl",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Niels Steenbakker",
-      "homepage": "https://seacommerce.nl",
-      "email": "niels@seacommerce.nl"
+  "description": "Mailcamp php library, fork of seacommerce/mailcamp",
+  "config": {
+    "platform": {
+      "php": "5.6"
     },
-    {
-      "name": "Sil Moelker",
-      "homepage": "https://seacommerce.nl",
-      "email": "sil@seacommerce.nl"
-    }
-  ],
+    "sort-packages": true
+  },
+  "license": "MIT",
   "require": {
-    "php": "^7.1.0",
-    "symfony/property-access": "^4.1",
-    "symfony/serializer": "^4.1"
+    "php": "^5.6",
+    "symfony/property-access": "^3.4",
+    "symfony/serializer": "^3.4"
   },
   "require-dev": {
-    "phpunit/phpunit": "^7.2",
-    "symfony/dotenv": "^4.1"
+    "phpunit/phpunit": "^5.7",
+    "symfony/dotenv": "^3.4"
   },
   "conflict": {
   },
@@ -41,8 +31,5 @@
     "psr-4": {
       "Seacommerce\\Mailcamp\\Tests\\": "tests/"
     }
-  },
-  "config": {
-    "sort-packages": true
   }
 }

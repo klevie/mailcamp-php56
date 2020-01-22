@@ -6,9 +6,9 @@ use Exception;
 use Seacommerce\Mailcamp\Dto\Request;
 use Seacommerce\Mailcamp\Dto\Subscriber;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Class Mailcamp
@@ -40,8 +40,8 @@ class Mailcamp
     {
         $this->settings = $settings;
 
-        $encoders = array(new XmlEncoder(), new JsonEncoder());
-        $normalizers = array(new ObjectNormalizer());
+        $encoders = [new XmlEncoder(), new JsonEncoder()];
+        $normalizers = [new ObjectNormalizer()];
 
         $this->serializer = new Serializer($normalizers, $encoders);
     }
@@ -50,16 +50,15 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function getOwnerId()
+    public function getOwnerId()
     {
 
         if (!$this->ownerid) {
             $request = $this->createRequest("authentication", "xmlapitest");
 
-            $details = array(
-                "" => ""
-            );
+            $details = [
+                "" => "",
+            ];
             $request->details = $details;
 
             $response = $this->send($request);
@@ -76,9 +75,10 @@ class Mailcamp
      * @param $requestMethod
      * @return Request
      */
-    public
-    function createRequest($requestType, $requestMethod)
-    {
+    public function createRequest(
+        $requestType,
+        $requestMethod
+    ) {
         $request = new Request();
         $request->username = $this->settings->getUsername();
         $request->usertoken = $this->settings->getUsertoken();
@@ -92,18 +92,17 @@ class Mailcamp
      * @return array
      * @throws Exception
      */
-    public
-    function getLists()
+    public function getLists()
     {
         $request = $this->createRequest("user", "GetLists");
 
-        $details = array(
+        $details = [
             "lists" => null,
             "sortinfo" => null,
             "countonly" => null,
             "start" => null,
-            "perpage" => null
-        );
+            "perpage" => null,
+        ];
         $request->details = $details;
         $response = $this->send($request);
         $this->mailinglists = $response->item;
@@ -115,12 +114,11 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function createMailingList($name)
+    public function createMailingList($name)
     {
 
         $request = $this->createRequest("lists", "Create");
-        $details = array(
+        $details = [
             "name" => $name,
             "owneremail" => $this->settings->getOwneremail(),
             "ownername" => $this->settings->getOwnername(),
@@ -139,8 +137,8 @@ class Mailcamp
             "ownerid" => $this->getOwnerId(),
             "processbounce" => $this->settings->getProcessbounce(),
             "visiblefields" => $this->settings->getVisiblefields(),
-            "customfields" => array(self::CUSTOMFIELD_FIRSTNAME, self::CUSTOMFIELD_LASTNAME),
-        );
+            "customfields" => [self::CUSTOMFIELD_FIRSTNAME, self::CUSTOMFIELD_LASTNAME],
+        ];
         $request->details = $details;
         $response = $this->send($request);
         // if success, returns listId
@@ -154,15 +152,14 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function IsSubscriberOnList(Subscriber $subscriber, $listId)
+    public function IsSubscriberOnList(Subscriber $subscriber, $listId)
     {
 
         $request = $this->createRequest("subscribers", "IsSubscriberOnList");
-        $details = array(
+        $details = [
             "emailaddress" => $subscriber->getEmailaddress(),
             "listids" => $listId,
-        );
+        ];
         $request->details = $details;
         $response = $this->send($request);
         // if success, returns listId
@@ -176,32 +173,31 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function AddSubscriberToList(Subscriber $subscriber, $listid)
+    public function AddSubscriberToList(Subscriber $subscriber, $listid)
     {
         $request = $this->createRequest("subscribers", "AddSubscriberToList");
 
-        $details = array(
+        $details = [
             "emailaddress" => $subscriber->getEmailaddress(),
             "mailinglist" => $listid,
             "format" => $this->settings->getFormat(),
             "confirmed" => true,
-            "ipaddress" => $_SERVER['REMOTE_ADDR'] ?? null,
+            "ipaddress" => $_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : null,
             "subscribedate" => strtotime('now'),
             "autoresponder" => true,
-            "customfields" => array(
-                "item" => array(
-                    array(
+            "customfields" => [
+                "item" => [
+                    [
                         "fieldid" => self::CUSTOMFIELD_LASTNAME,
                         "value" => $subscriber->getLastname(),
-                    ),
-                    array(
+                    ],
+                    [
                         "fieldid" => self::CUSTOMFIELD_FIRSTNAME,
                         "value" => $subscriber->getFirstname(),
-                    )
-                )
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
         $request->details = $details;
         $response = $this->send($request);
         return $response;
@@ -213,35 +209,33 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function GetArchiveMailings(int $listId, int $numToRetrieve = 99)
+    public function GetArchiveMailings($listId, $numToRetrieve = 99)
     {
 
         $request = $this->createRequest("lists", "GetArchives");
-        $details = array(
+        $details = [
             "listid" => $listId,
-            "num_to_retrieve" => $numToRetrieve ?? 99,
-        );
+            "num_to_retrieve" => $numToRetrieve ? $numToRetrieve : 99,
+        ];
         $request->details = $details;
         $response = $this->send($request);
         return $response;
     }
 
 
-    public
-    function GetNewsletters(int $ownerId = null)
+    public function GetNewsletters($ownerId = null)
     {
         $request = $this->createRequest("newsletters", "GetNewsletters");
-        $details = array(
+        $details = [
             "ownerid" => $this->getOwnerId(),
-            "sortinfo" => array(
+            "sortinfo" => [
                 "SortBy" => "Date",
-                "direction" => "down"
-            ),
+                "direction" => "down",
+            ],
             "start" => 0,
             "perpage" => 99,
             "getLastSentDetails" => false,
-        );
+        ];
         $request->details = $details;
         $response = $this->send($request);
         return $response->item;
@@ -253,27 +247,28 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function EditSubscriber(Subscriber $subscriber, $listid)
-    {
+    public function EditSubscriber(
+        Subscriber $subscriber,
+        $listid
+    ) {
         $request = $this->createRequest("subscribers", "EditSubscriberCustomFields");
 
-        $details = array(
+        $details = [
             "emailaddress" => $subscriber->getEmailaddress(),
             "mailinglist" => $listid,
-            "customfields" => array(
-                "item" => array(
-                    array(
+            "customfields" => [
+                "item" => [
+                    [
                         "fieldid" => self::CUSTOMFIELD_LASTNAME,
                         "value" => $subscriber->getLastname(),
-                    ),
-                    array(
+                    ],
+                    [
                         "fieldid" => self::CUSTOMFIELD_FIRSTNAME,
                         "value" => $subscriber->getFirstname(),
-                    )
-                )
-            ),
-        );
+                    ],
+                ],
+            ],
+        ];
         $request->details = $details;
         $response = $this->send($request);
         return $response;
@@ -284,11 +279,14 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function createMailing($name, $subject, $textBody, $htmlbody)
-    {
+    public function createMailing(
+        $name,
+        $subject,
+        $textBody,
+        $htmlbody
+    ) {
         $request = $this->createRequest("newsletters", "Create");
-        $details = array(
+        $details = [
             "name" => $name,
             //format BOTH (HTML and TEXT)
             "format" => "b",
@@ -299,7 +297,7 @@ class Mailcamp
             "active" => 1,
             "archive" => 1,
             "ownerid" => $this->getOwnerId(),
-        );
+        ];
         $request->details = $details;
 
         $response = $this->send($request);
@@ -313,14 +311,16 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function sendMailing($listid, $newsletterid, $googleCampaignName = null)
-    {
+    public function sendMailing(
+        $listid,
+        $newsletterid,
+        $googleCampaignName = null
+    ) {
         $request = $this->createRequest("jobs", "Create");
 
         $list = $this->findListById($listid);
 
-        $details = array(
+        $details = [
             "jobtype" => "send",
             "jobstatus" => "w",
             "when" => strtotime('now'),
@@ -329,14 +329,14 @@ class Mailcamp
             "fktype" => $listid,
             "ownerid" => $this->getOwnerId(),
             "approved" => 1,
-            "details" => array(
+            "details" => [
                 "NewsletterChosen" => $newsletterid,
                 "Lists" => $listid,
-                "SendCriteria" => array(
+                "SendCriteria" => [
                     "Confirmed" => 1,
                     "Status" => "a",
                     "List" => $listid,
-                ),
+                ],
                 "SendSize" => $list->subscribecount,
                 "BackStep" => 1,
                 "Multipart" => 1,
@@ -353,15 +353,15 @@ class Mailcamp
                 "Charset" => "UTF-8",
                 "NotifyOwner" => 1,
                 "SendStartTime" => strtotime('now'),
-                "module_tracker_google_options_name" => $googleCampaignName ?? $list->name ."-". $newsletterid . "-".date("d-m-Y"),
+                "module_tracker_google_options_name" => $googleCampaignName ? $googleCampaignName : $list->name . "-" . $newsletterid . "-" . date("d-m-Y"),
                 "module_tracker_google_options_source" => "email",
-                "EmailResults" => array(
+                "EmailResults" => [
                     "success" => 0,
                     "total" => 0,
                     "failure" => 0,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
         $request->details = $details;
 
         $response = $this->send($request);
@@ -374,15 +374,16 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function DeleteSubscriberFromList($emailadress, $listid)
-    {
+    public function DeleteSubscriberFromList(
+        $emailadress,
+        $listid
+    ) {
         $request = $this->createRequest("subscribers", "DeleteSubscriber");
 
-        $details = array(
+        $details = [
             "emailaddress" => $emailadress,
-            "listid" => $listid
-        );
+            "listid" => $listid,
+        ];
         $request->details = $details;
         $response = $this->send($request);
         return $response;
@@ -394,13 +395,13 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function deleteMailingList($listid)
-    {
+    public function deleteMailingList(
+        $listid
+    ) {
         $request = $this->createRequest("lists", "Delete");
-        $details = array(
+        $details = [
             "listid" => $listid,
-        );
+        ];
         $request->details = $details;
 
         $response = $this->send($request);
@@ -412,11 +413,11 @@ class Mailcamp
      * @param $listid
      * @return mixed
      */
-    public
-    function findListById($listid)
-    {
+    public function findListById(
+        $listid
+    ) {
         $lists = $this->getLists();
-        if(!is_array($lists)) {
+        if (!is_array($lists)) {
             $lists = [$lists];
         }
         $list = array_values(array_filter($lists, function ($list) use (&$listid) {
@@ -429,11 +430,11 @@ class Mailcamp
      * @param $listNamePrefix
      * @return array
      */
-    public
-    function findListByListNamePrefix($listNamePrefix)
-    {
+    public function findListByListNamePrefix(
+        $listNamePrefix
+    ) {
         $lists = $this->getLists();
-        if(!is_array($lists)) {
+        if (!is_array($lists)) {
             $lists = [$lists];
         }
         $list = array_values(array_filter($lists, function ($list) use (&$listNamePrefix) {
@@ -449,9 +450,9 @@ class Mailcamp
      * @return mixed
      * @throws Exception
      */
-    public
-    function send(Request $request)
-    {
+    public function send(
+        Request $request
+    ) {
 
         $xml = $this->serializer->serialize($request, 'xml');
         $ch = curl_init($this->settings->getEndpoint());
@@ -468,11 +469,10 @@ class Mailcamp
             if ($arrayData->status == 'SUCCESS') {
                 return $arrayData->data;
             } else {
-                if( is_string($arrayData->errormessage)) {
+                if (is_string($arrayData->errormessage)) {
                     throw new Exception($arrayData->errormessage);
                 }
             }
         }
     }
-
 }
