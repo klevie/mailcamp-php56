@@ -169,11 +169,12 @@ class Mailcamp
 
     /**
      * @param Subscriber $subscriber
-     * @param $listid
+     * @param int $listid
+     * @param array $customFieldValues
      * @return mixed
      * @throws Exception
      */
-    public function AddSubscriberToList(Subscriber $subscriber, $listid)
+    public function AddSubscriberToList(Subscriber $subscriber, $listid, $customFieldValues = [])
     {
         $request = $this->createRequest("subscribers", "AddSubscriberToList");
 
@@ -186,17 +187,36 @@ class Mailcamp
             "subscribedate" => strtotime('now'),
             "autoresponder" => true,
             "customfields" => [
-                "item" => [
+                "item" => array_merge($customFieldValues,
                     [
-                        "fieldid" => self::CUSTOMFIELD_LASTNAME,
-                        "value" => $subscriber->getLastname(),
-                    ],
-                    [
-                        "fieldid" => self::CUSTOMFIELD_FIRSTNAME,
-                        "value" => $subscriber->getFirstname(),
-                    ],
-                ],
+                        [
+                            "fieldid" => self::CUSTOMFIELD_LASTNAME,
+                            "value" => $subscriber->getLastname(),
+                        ],
+                        [
+                            "fieldid" => self::CUSTOMFIELD_FIRSTNAME,
+                            "value" => $subscriber->getFirstname(),
+                        ],
+                    ]),
             ],
+        ];
+        $request->details = $details;
+        $response = $this->send($request);
+        return $response;
+    }
+
+    /**
+     * @param Subscriber $subscriber
+     * @param int $listid
+     * @return mixed
+     * @throws Exception
+     */
+    public function ActivateSubscriberForList(Subscriber $subscriber, $listid) {
+        $request = $this->createRequest("subscribers", "ActivateSubscriber");
+
+        $details = [
+            "emailaddress" => $subscriber->getEmailaddress(),
+            "listid" => $listid,
         ];
         $request->details = $details;
         $response = $this->send($request);
