@@ -185,7 +185,7 @@ class Mailcamp
             "confirmed" => true,
             "ipaddress" => $_SERVER['REMOTE_ADDR'] ? $_SERVER['REMOTE_ADDR'] : null,
             "subscribedate" => strtotime('now'),
-            "autoresponder" => true,
+            "add_to_autoresponders" => true,
             "customfields" => [
                 "item" => array_merge($customFieldValues,
                     [
